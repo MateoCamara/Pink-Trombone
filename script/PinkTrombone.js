@@ -7,13 +7,13 @@ import {} from "./audio/nodes/constantSource/AudioNode.js"
 import {} from "./audio/nodes/noise/AudioNode.js";
 import {} from "./audio/nodes/pinkTrombone/AudioNode.js";
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
+window.OfflineAudioContext = window.OfflineAudioContext || window.webkitAudioContext;
 
 class PinkTrombone {
     addModules(audioContext) {
         if(audioContext.audioWorklet !== undefined) {
-            //return audioContext.audioWorklet.addModule("./script/audio/nodes/pinkTrombone/processors/WorkletProcessor.js")
-            return audioContext.audioWorklet.addModule("./pink-trombone-worklet-processor.min.js");
+            return audioContext.audioWorklet.addModule("./script/audio/nodes/pinkTrombone/processors/WorkletProcessor.js")
+            // return audioContext.audioWorklet.addModule("../pink-trombone-worklet-processor.min.js");
         }
         else {
             return new Promise((resolve, reject) => {
@@ -91,7 +91,7 @@ class PinkTrombone {
     }
 }
 
-window.AudioContext.prototype.createPinkTrombone = function() {
+window.OfflineAudioContext.prototype.createPinkTrombone = function() {
     return new PinkTrombone(this);
 }
 

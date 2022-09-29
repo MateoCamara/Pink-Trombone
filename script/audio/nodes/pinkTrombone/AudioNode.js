@@ -6,7 +6,7 @@
 import ParameterDescriptors from "./processors/ParameterDescriptors.js";
 import Processor from "./processors/Processor.js";
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
+window.OfflineAudioContext = window.OfflineAudioContext || window.webkitAudioContext;
 
 // CONSTRUCTOR HELPERS
 function setupNode(audioNode) {
@@ -144,12 +144,12 @@ if(window.AudioWorklet !== undefined) {
         }
     }
 
-    window.AudioContext.prototype.createPinkTromboneNode = function() {
+    window.OfflineAudioContext.prototype.createPinkTromboneNode = function() {
         return new PinkTromboneNode(this, ...arguments);
     }
 }
 else {
-    window.AudioContext.prototype.createPinkTromboneNode = function() {
+    window.OfflineAudioContext.prototype.createPinkTromboneNode = function() {
         const pinkTromboneNode = this.createScriptProcessor(Math.pow(2, 11), ParameterDescriptors.length, 1);
         pinkTromboneNode.processor = new Processor();
 
@@ -222,6 +222,8 @@ else {
 
             const parameterChannels = this._getParameterChannels(event.inputBuffer);
             const constrictions = this._getConstrictions(parameterChannels);
+
+            console.log('hei pa deg')
 
             for(let sampleIndex = 0; sampleIndex < outputChannel.length; sampleIndex++) {
                 const parameterSamples = this._getParameterSamples(parameterChannels, sampleIndex);

@@ -41,12 +41,12 @@ class Glottis {
         vibrato += 0.02 * this.noise.simplex1(seconds * 4.07);
         vibrato += 0.04 * this.noise.simplex1(seconds * 2.15);
 
-        if(parameterSamples.vibratoWobble > 0) {
-            var wobble = 0;
-                wobble += 0.2 * this.noise.simplex1(seconds * 0.98);
-                wobble += 0.4 * this.noise.simplex1(seconds * 0.50);
-            vibrato += wobble * parameterSamples.vibratoWobble;
-        }
+        // if(parameterSamples.vibratoWobble > 0) {
+        //     var wobble = 0;
+        //         wobble += 0.2 * this.noise.simplex1(seconds * 0.98);
+        //         wobble += 0.4 * this.noise.simplex1(seconds * 0.50);
+        //     vibrato += wobble * parameterSamples.vibratoWobble;
+        // }
 
         var frequency = parameterSamples.frequency;
         frequency *= (1 + vibrato);

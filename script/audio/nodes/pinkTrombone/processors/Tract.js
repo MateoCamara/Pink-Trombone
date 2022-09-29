@@ -84,7 +84,7 @@ class Tract {
                         return this.maxValue - this.minValue;
                     },
                     get center() {
-                        return (this.maxValue + this.minValue)/2;
+                        return (this.maxValue + this.minValue)  /2;
                     },
                     interpolation(diameterValue) {
                         const interpolation = (diameterValue - this.minValue) / this.range;
@@ -177,8 +177,9 @@ class Tract {
 
         var outputSample = 0;
             outputSample += this._processLips(parameterSamples, bufferInterpolation, updateAmplitudes);
+        // console.time('doSomething')
             outputSample += this._processNose(parameterSamples, bufferInterpolation, updateAmplitudes);
-        
+        // console.timeEnd('doSomething')
         if(isNaN(outputSample))
             this.reset();
 

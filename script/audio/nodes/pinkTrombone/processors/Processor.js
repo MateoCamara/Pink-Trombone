@@ -14,7 +14,7 @@ class Processor {
 
     process(parameterSamples, sampleIndex, bufferLength, seconds) {
         var outputSample = 0;
-        
+
         const glottisSample = this.glottis.process(...arguments);
         parameterSamples.glottis = glottisSample;
 

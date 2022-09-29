@@ -16,10 +16,10 @@ Math.interpolate = function(interpolation, from, to) {
     return (from * (1 - interpolation)) + (to * (interpolation));
 }
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
+window.OfflineAudioContext = window.OfflineAudioContext || window.webkitAudioContext;
 
-if(window.AudioContext.prototype.createConstantSource == undefined) {
-    window.AudioContext.prototype.createConstantSource = function() {
+if(window.OfflineAudioContext.prototype.createConstantSource == undefined) {
+    window.OfflineAudioContext.prototype.createConstantSource = function() {
         
         const constantSourceNode = this.createScriptProcessor(Math.pow(2, 14), 1, 1);
         constantSourceNode._isRunning = false;

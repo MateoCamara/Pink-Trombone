@@ -3,9 +3,9 @@
         .type property that allows for different noise types (white noise, pink noise, etc)
 */
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
+window.OfflineAudioContext = window.OfflineAudioContext || window.webkitAudioContext;
 
-window.AudioContext.prototype.createNoise = function() {
+window.OfflineAudioContext.prototype.createNoise = function() {
     const noiseNode = this.createBufferSource();
 
     const seconds = 1;

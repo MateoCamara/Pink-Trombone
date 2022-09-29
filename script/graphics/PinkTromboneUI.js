@@ -39,7 +39,7 @@ class PinkTromboneUI {
                 this._buttonsUI.node.style.gridRow = "2";
             
             this._container.addEventListener("message", event => {
-                event.stopPropagation();
+                // event.stopPropagation();
                 Array.from(this._container.children).forEach(child => {
                     if(child !== event.target) {
                         child.dispatchEvent(new CustomEvent("message", {

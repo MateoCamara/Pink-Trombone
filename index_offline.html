@@ -1,0 +1,31 @@
+<html>
+<head>
+<!--    <script src='./bufferToWave.js' type="module"></script>-->
+    <script src="./script/component.js" type="module"></script>
+<!--    <script src="./index.js" type="module"></script>-->
+</head>
+
+<body>
+<pink-trombone></pink-trombone>
+<script>
+    let pinkTromboneElement = document.querySelector("pink-trombone")
+
+    let myConstriction;
+    console.log('heiii')
+
+
+    pinkTromboneElement.addEventListener("load", event => {
+        pinkTromboneElement.setAudioContext().then(pinkTrombone => {
+            pinkTromboneElement.enableUI();
+            // pinkTromboneElement.startUI();
+            pinkTromboneElement.connect(pinkTromboneElement.audioContext.destination);
+
+            // pinkTromboneElement.runOffline();
+
+            // event.target.dispatchEvent(new CustomEvent("didResume"));
+        });
+    });
+</script>
+</body>
+
+</html>

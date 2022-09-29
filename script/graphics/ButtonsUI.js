@@ -12,8 +12,8 @@ class ButtonsUI {
 
         this._buttons = {
             start : this._createButton("start"),
-            wobble : this._createButton("wobble", true, "vibrato.wobble"),
-            voice : this._createButton("voice", true, "intensity"),
+            // wobble : this._createButton("wobble", true, "vibrato.wobble"),
+            // voice : this._createButton("voice", true, "intensity"),
         };
 
         this._buttons.start.addEventListener("didResume", event => {

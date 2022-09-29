@@ -4,9 +4,10 @@
 */
 
 import {} from "./PinkTrombone.js";
+// import {} from "../bufferToWave.js";
 import PinkTromboneUI from "./graphics/PinkTromboneUI.js";
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
+window.OfflineAudioContext = window.OfflineAudioContext || window.webkitAudioContext;
 
 class PinkTromboneElement extends HTMLElement {
     constructor() {
@@ -26,11 +27,45 @@ class PinkTromboneElement extends HTMLElement {
 
                     event.stopPropagation();
                 });
+                this.addEventListener("didResume", async event => {
+                    console.log('did resume')
+
+                    // await this.downloadOffline();
+                    for (let i=0; i<10; i++) {
+                        await this.setAudioContext().then(pinktrombone => {
+                            // yawn()
+                            pinkTromboneElement.tongue.index.value = i
+                            pinkTromboneElement.tongue.diameter.value = 2.7
+                            pinkTromboneElement.frequency.value = 300
+                            this.connect(pinkTromboneElement.audioContext.destination)
+                            this.downloadOffline();
+                        });
+                    }
+
+
+
+                })
 
                 this.addEventListener("resume", event => {
-                    this.audioContext.resume();
+                    console.log('resume')
+                    // this.audioContext.resume();
                     this.pinkTrombone.start();
+                    // let context = new AudioContext()
+                    // this.audioContext.startRendering().then(data => {
+                    //     let bufferedSource =  context.createBufferSource()
+                    //     bufferedSource.buffer = data
+                    //     bufferedSource.connect(context.destination)
+                    //     bufferedSource.start()
+                    // })
+
+                    // this.audioContext.startRendering().then(buffer => {
+                    //     let audio = URL.createObjectURL(bufferToWave(buffer, 0,44100*1))
+                    //     downloadBlob(audio, 'hei.wav')
+                    // })
+
+
                     event.target.dispatchEvent(new CustomEvent("didResume"));
+                    event.currentTarget.dispatchEvent(new CustomEvent("didResume"));
                 });
     
                 // Audio Parameters
@@ -158,6 +193,29 @@ class PinkTromboneElement extends HTMLElement {
         this.dispatchEvent(loadEvent);
     }
 
+    runOffline() {
+        console.log('resume')
+        // this.audioContext.resume();
+        this.pinkTrombone.start();
+        let context = new AudioContext()
+        // context.resume();
+        this.audioContext.startRendering().then(data => {
+            let bufferedSource =  context.createBufferSource()
+            bufferedSource.buffer = data
+            bufferedSource.connect(context.destination)
+            bufferedSource.start()
+        })
+    }
+
+    async downloadOffline() {
+        // this.pinkTrombone.start();
+        pinkTromboneElement.start();
+        this.audioContext.startRendering().then(buffer => {
+            let audio = URL.createObjectURL(bufferToWave(buffer, 0,44100*2))
+            downloadBlob(audio, 'hei.wav')
+        })
+    }
+
     enableUI() {
         if(this.UI == undefined) {
             this.UI = new PinkTromboneUI();
@@ -205,7 +263,7 @@ class PinkTromboneElement extends HTMLElement {
         }
     }
 
-    setAudioContext(audioContext = new window.AudioContext()) {
+    setAudioContext(audioContext = new window.OfflineAudioContext(1, 44100*1, 44100)) {
         this.pinkTrombone = audioContext.createPinkTrombone();
 
         this.loadPromise = this.pinkTrombone.loadPromise
@@ -243,7 +301,7 @@ class PinkTromboneElement extends HTMLElement {
     start() {
         if(this.pinkTrombone) {
             this.pinkTrombone.start();
-            this.startUI();
+            // this.startUI();
         }
         else
             throw "Pink Trombone hasn't been set yet";
@@ -290,6 +348,135 @@ class PinkTromboneElement extends HTMLElement {
 
 if(document.createElement("pink-trombone").constructor == HTMLElement) {
     window.customElements.define("pink-trombone", PinkTromboneElement);
+}
+
+
+
+function bufferToWave(abuffer, offset, len) {
+    var numOfChan = abuffer.numberOfChannels,
+        length = len * numOfChan * 2 + 44,
+        buffer = new ArrayBuffer(length),
+        view = new DataView(buffer),
+        channels = [], i, sample,
+        pos = 0;
+    // write WAVE header - total offset will be 44 bytes - see chart at http://soundfile.sapp.org/doc/WaveFormat/
+    setUint32(0x46464952);                         // 'RIFF'
+    setUint32(length - 8);                         // file length - 8
+    setUint32(0x45564157);                         // 'WAVE'
+    setUint32(0x20746d66);                         // 'fmt ' chunk
+    setUint32(16);                                 // length = 16
+    setUint16(1);                                  // PCM (uncompressed)
+    setUint16(numOfChan);
+    setUint32(abuffer.sampleRate);
+    setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+    setUint16(numOfChan * 2);                      // block-align
+    setUint16(16);                                 // 16-bit (hardcoded in this demo)
+
+    setUint32(0x61746164);                         // 'data' - chunk
+    setUint32(length - pos - 4);                   // chunk length
+
+    // write interleaved data
+    for(i = 0; i < abuffer.numberOfChannels; i++)
+        channels.push(abuffer.getChannelData(i));
+
+    while(pos < length) {
+        for(i = 0; i < numOfChan; i++) {             // interleave channels
+            sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; // scale to 16-bit signed int
+            view.setInt16(pos, sample, true);          // update data chunk
+            pos += 2;
+        }
+        offset++                                     // next source sample
+    }
+
+    // create Blob
+    return new Blob([buffer], {type: 'audio/wav'});
+
+    function setUint16(data) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+    }
+
+    function setUint32(data) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+    }
+}
+
+function downloadBlob(blob, name = 'file.txt') {
+    if (
+        window.navigator &&
+        window.navigator.msSaveOrOpenBlob
+    ) return window.navigator.msSaveOrOpenBlob(blob);
+
+    // For other browsers:
+    // Create a link pointing to the ObjectURL containing the blob.
+    const data = blob //window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = data;
+    link.download = name;
+
+    // this is necessary as link.click() does not work on the latest firefox
+    link.dispatchEvent(
+        new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        })
+    );
+
+    setTimeout(() => {
+        // For Firefox it is necessary to delay revoking the ObjectURL
+        window.URL.revokeObjectURL(data);
+        link.remove();
+    }, 100);
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function yawn(steps = 500, randomize = false) {
+
+    this.pinkTrombone.intensity.value = 1;
+    this.pinkTrombone.tongue.index.value = 18
+    this.pinkTrombone.tongue.diameter.value = 2.7
+
+    let params = [];
+
+    if (randomize) {
+        freq_min = getRandomArbitrary(30, 70)
+        voiceness_min = getRandomArbitrary(0.6, 0.8)
+        constriction_indexes_min = getRandomArbitrary(11, 16)
+    } else {
+        freq_min = 30;
+        voiceness_min = 0.8;
+        constriction_indexes_min = 11;
+    }
+
+    freqs = [...makeArr(freq_min, freq_min * 2, steps / 2), ...makeArr(freq_min * 2, freq_min, steps / 2)]
+    voicenesses = [...makeArr(1, voiceness_min, steps / 2), ...makeArr(voiceness_min, 1, steps / 2)]
+    constriction_indexes = [...makeArr(constriction_indexes_min, constriction_indexes_min * 2, steps / 2), ...makeArr(constriction_indexes_min * 2, constriction_indexes_min * 2, steps / 2)]
+    constriction_diameters = [...makeArr(0, 1, steps / 2), ...makeArr(1, 0, steps / 2)]
+
+    for (i of Array(steps).keys()) {
+        this.pinkTrombone.frequency.value = freqs[i];
+        setVoiceness(voicenesses[i])
+        myConstriction.index.value = constriction_indexes[i]
+        myConstriction.diameter.value = constriction_diameters[i]
+        params.push({
+            'frequency': freqs[i],
+            'voicenesses': voicenesses[i],
+            'myConstriction.index': constriction_indexes[i],
+            'myConstriction.diameter': constriction_diameters[i],
+            'intensity': 1,
+            'tongue.index': 18,
+            'tongue.diameter': 2.7
+        })
+        await sleep(10)
+    }
+    return params
 }
 
 export default PinkTromboneElement;
