@@ -223,8 +223,6 @@ else {
             const parameterChannels = this._getParameterChannels(event.inputBuffer);
             const constrictions = this._getConstrictions(parameterChannels);
 
-            console.log('hei pa deg')
-
             for(let sampleIndex = 0; sampleIndex < outputChannel.length; sampleIndex++) {
                 const parameterSamples = this._getParameterSamples(parameterChannels, sampleIndex);
                 const bufferLength = outputChannel.length;

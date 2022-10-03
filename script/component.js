@@ -6,6 +6,9 @@
 import {} from "./PinkTrombone.js";
 // import {} from "../bufferToWave.js";
 import PinkTromboneUI from "./graphics/PinkTromboneUI.js";
+import ParameterDescriptors from "./audio/nodes/pinkTrombone/processors/ParameterDescriptors.js";
+import yawnDescriptors from "./audio/nodes/pinkTrombone/processors/yawnDescriptors.js";
+import parameterDescriptors from "./audio/nodes/pinkTrombone/processors/ParameterDescriptors.js";
 
 window.OfflineAudioContext = window.OfflineAudioContext || window.webkitAudioContext;
 
@@ -29,41 +32,17 @@ class PinkTromboneElement extends HTMLElement {
                 });
                 this.addEventListener("didResume", async event => {
                     console.log('did resume')
-
-                    // await this.downloadOffline();
-                    for (let i=0; i<10; i++) {
-                        await this.setAudioContext().then(pinktrombone => {
-                            // yawn()
-                            pinkTromboneElement.tongue.index.value = i
-                            pinkTromboneElement.tongue.diameter.value = 2.7
-                            pinkTromboneElement.frequency.value = 300
+                    for (let i=0; i<2; i++) {
+                        await this.setAudioContext().then(async pinktrombone => {
                             this.connect(pinkTromboneElement.audioContext.destination)
-                            this.downloadOffline();
+                            await this.downloadOffline();
                         });
                     }
-
-
-
                 })
 
                 this.addEventListener("resume", event => {
                     console.log('resume')
-                    // this.audioContext.resume();
                     this.pinkTrombone.start();
-                    // let context = new AudioContext()
-                    // this.audioContext.startRendering().then(data => {
-                    //     let bufferedSource =  context.createBufferSource()
-                    //     bufferedSource.buffer = data
-                    //     bufferedSource.connect(context.destination)
-                    //     bufferedSource.start()
-                    // })
-
-                    // this.audioContext.startRendering().then(buffer => {
-                    //     let audio = URL.createObjectURL(bufferToWave(buffer, 0,44100*1))
-                    //     downloadBlob(audio, 'hei.wav')
-                    // })
-
-
                     event.target.dispatchEvent(new CustomEvent("didResume"));
                     event.currentTarget.dispatchEvent(new CustomEvent("didResume"));
                 });
@@ -211,7 +190,7 @@ class PinkTromboneElement extends HTMLElement {
         // this.pinkTrombone.start();
         pinkTromboneElement.start();
         this.audioContext.startRendering().then(buffer => {
-            let audio = URL.createObjectURL(bufferToWave(buffer, 0,44100*2))
+            let audio = URL.createObjectURL(bufferToWave(buffer, 0,44100*5))
             downloadBlob(audio, 'hei.wav')
         })
     }
@@ -263,7 +242,7 @@ class PinkTromboneElement extends HTMLElement {
         }
     }
 
-    setAudioContext(audioContext = new window.OfflineAudioContext(1, 44100*1, 44100)) {
+    setAudioContext(audioContext = new window.OfflineAudioContext(1, 44100*5, 44100)) {
         this.pinkTrombone = audioContext.createPinkTrombone();
 
         this.loadPromise = this.pinkTrombone.loadPromise
@@ -354,7 +333,7 @@ if(document.createElement("pink-trombone").constructor == HTMLElement) {
 
 function bufferToWave(abuffer, offset, len) {
     var numOfChan = abuffer.numberOfChannels,
-        length = len * numOfChan * 2 + 44,
+        length = len * numOfChan  * 2 + 44,
         buffer = new ArrayBuffer(length),
         view = new DataView(buffer),
         channels = [], i, sample,
@@ -439,11 +418,14 @@ function sleep(ms) {
 
 async function yawn(steps = 500, randomize = false) {
 
-    this.pinkTrombone.intensity.value = 1;
-    this.pinkTrombone.tongue.index.value = 18
-    this.pinkTrombone.tongue.diameter.value = 2.7
+    // this.pinkTrombone.intensity.value = 1;
+    // this.pinkTrombone.tongue.index.value = 18
+    // this.pinkTrombone.tongue.diameter.value = 2.7
 
     let params = [];
+    let freq_min
+    let voiceness_min
+    let constriction_indexes_min
 
     if (randomize) {
         freq_min = getRandomArbitrary(30, 70)
@@ -455,16 +437,16 @@ async function yawn(steps = 500, randomize = false) {
         constriction_indexes_min = 11;
     }
 
-    freqs = [...makeArr(freq_min, freq_min * 2, steps / 2), ...makeArr(freq_min * 2, freq_min, steps / 2)]
-    voicenesses = [...makeArr(1, voiceness_min, steps / 2), ...makeArr(voiceness_min, 1, steps / 2)]
-    constriction_indexes = [...makeArr(constriction_indexes_min, constriction_indexes_min * 2, steps / 2), ...makeArr(constriction_indexes_min * 2, constriction_indexes_min * 2, steps / 2)]
-    constriction_diameters = [...makeArr(0, 1, steps / 2), ...makeArr(1, 0, steps / 2)]
+    let freqs = [...makeArr(freq_min, freq_min * 2, steps / 2), ...makeArr(freq_min * 2, freq_min, steps / 2)]
+    let voicenesses = [...makeArr(1, voiceness_min, steps / 2), ...makeArr(voiceness_min, 1, steps / 2)]
+    let constriction_indexes = [...makeArr(constriction_indexes_min, constriction_indexes_min * 2, steps / 2), ...makeArr(constriction_indexes_min * 2, constriction_indexes_min * 2, steps / 2)]
+    let constriction_diameters = [...makeArr(0, 1, steps / 2), ...makeArr(1, 0, steps / 2)]
 
-    for (i of Array(steps).keys()) {
-        this.pinkTrombone.frequency.value = freqs[i];
-        setVoiceness(voicenesses[i])
-        myConstriction.index.value = constriction_indexes[i]
-        myConstriction.diameter.value = constriction_diameters[i]
+    for (let i of Array(steps).keys()) {
+        // this.pinkTrombone.frequency.value = freqs[i];
+        // setVoiceness(voicenesses[i])
+        // myConstriction.index.value = constriction_indexes[i]
+        // myConstriction.diameter.value = constriction_diameters[i]
         params.push({
             'frequency': freqs[i],
             'voicenesses': voicenesses[i],
@@ -472,11 +454,33 @@ async function yawn(steps = 500, randomize = false) {
             'myConstriction.diameter': constriction_diameters[i],
             'intensity': 1,
             'tongue.index': 18,
-            'tongue.diameter': 2.7
+            'tongue.diameter': 2.7,
+            'constriction': {
+                'index': constriction_indexes[i],
+                'diameter': constriction_diameters[i]
+            }
         })
-        await sleep(10)
     }
     return params
+}
+
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function linspace(start, stop, num, endpoint = true) {
+    const div = endpoint ? (num - 1) : num;
+    const step = (stop - start) / div;
+    return Array.from({length: num}, (_, i) => start + step * i);
+}
+
+function makeArr(startValue, stopValue, cardinality) {
+    var arr = [];
+    var step = (stopValue - startValue) / (cardinality - 1);
+    for (var i = 0; i < cardinality; i++) {
+        arr.push(startValue + (step * i));
+    }
+    return arr;
 }
 
 export default PinkTromboneElement;
