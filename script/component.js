@@ -7,8 +7,6 @@ import {} from "./PinkTrombone.js";
 // import {} from "../bufferToWave.js";
 import PinkTromboneUI from "./graphics/PinkTromboneUI.js";
 import ParameterDescriptors from "./audio/nodes/pinkTrombone/processors/ParameterDescriptors.js";
-import yawnDescriptors from "./audio/nodes/pinkTrombone/processors/yawnDescriptors.js";
-import parameterDescriptors from "./audio/nodes/pinkTrombone/processors/ParameterDescriptors.js";
 
 window.OfflineAudioContext = window.OfflineAudioContext || window.webkitAudioContext;
 
