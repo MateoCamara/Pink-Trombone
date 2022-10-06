@@ -105,6 +105,48 @@ class PinkTromboneWorkletProcessor extends AudioWorkletProcessor {
     }
 }
 
+function newYawn(steps = 441, randomize = false) {
+
+    let jump = 132
+
+    let f0 = 242
+    let min_cent = 900
+    let max_cent = 2350
+    let ratio = max_cent / min_cent
+
+    let constriction_indexes_min = getRandomArbitrary(11, 16)
+
+    let constriction_indexes = [...makeArr(constriction_indexes_min, constriction_indexes_min * 2, steps / 2),
+        ...makeArr(constriction_indexes_min * 2, constriction_indexes_min * 2, steps / 2)]
+
+    let constriction_diameters = [...makeArr(1, 0.9, jump),
+        ...makeArr(0.9, 0.5, steps - jump)]
+
+    let freqs = [...makeArr(f0, 250, jump),
+        ...makeArr(250, 70, steps - jump)]
+
+    let params = []
+
+    for (let i of Array(steps).keys()) {
+        params.push({
+            'frequency': freqs[i],
+            'voicenesses': 1,
+            'myConstriction.index': constriction_indexes[i],
+            'myConstriction.diameter': constriction_diameters[i],
+            'intensity': 1,
+            'tongue.index': 18,
+            'tongue.diameter': 2.7,
+            'constriction': {
+                'index': constriction_indexes[i],
+                'diameter': constriction_diameters[i]
+            }
+        })
+    }
+
+    return params
+}
+
+
 function yawn(steps = 5000, randomize = false) {
 
     // this.pinkTrombone.intensity.value = 1;

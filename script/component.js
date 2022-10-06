@@ -414,54 +414,6 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function yawn(steps = 500, randomize = false) {
-
-    // this.pinkTrombone.intensity.value = 1;
-    // this.pinkTrombone.tongue.index.value = 18
-    // this.pinkTrombone.tongue.diameter.value = 2.7
-
-    let params = [];
-    let freq_min
-    let voiceness_min
-    let constriction_indexes_min
-
-    if (randomize) {
-        freq_min = getRandomArbitrary(30, 70)
-        voiceness_min = getRandomArbitrary(0.6, 0.8)
-        constriction_indexes_min = getRandomArbitrary(11, 16)
-    } else {
-        freq_min = 30;
-        voiceness_min = 0.8;
-        constriction_indexes_min = 11;
-    }
-
-    let freqs = [...makeArr(freq_min, freq_min * 2, steps / 2), ...makeArr(freq_min * 2, freq_min, steps / 2)]
-    let voicenesses = [...makeArr(1, voiceness_min, steps / 2), ...makeArr(voiceness_min, 1, steps / 2)]
-    let constriction_indexes = [...makeArr(constriction_indexes_min, constriction_indexes_min * 2, steps / 2), ...makeArr(constriction_indexes_min * 2, constriction_indexes_min * 2, steps / 2)]
-    let constriction_diameters = [...makeArr(0, 1, steps / 2), ...makeArr(1, 0, steps / 2)]
-
-    for (let i of Array(steps).keys()) {
-        // this.pinkTrombone.frequency.value = freqs[i];
-        // setVoiceness(voicenesses[i])
-        // myConstriction.index.value = constriction_indexes[i]
-        // myConstriction.diameter.value = constriction_diameters[i]
-        params.push({
-            'frequency': freqs[i],
-            'voicenesses': voicenesses[i],
-            'myConstriction.index': constriction_indexes[i],
-            'myConstriction.diameter': constriction_diameters[i],
-            'intensity': 1,
-            'tongue.index': 18,
-            'tongue.diameter': 2.7,
-            'constriction': {
-                'index': constriction_indexes[i],
-                'diameter': constriction_diameters[i]
-            }
-        })
-    }
-    return params
-}
-
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
