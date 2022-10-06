@@ -86,7 +86,7 @@
                         window.sayUKATON();
                     })
                 }
-                // myConstriction = pinkTromboneElement.newConstriction(11, 0);
+                myConstriction = pinkTromboneElement.newConstriction(11, 1);
 
             });
     });
@@ -155,6 +155,57 @@
             })
             await sleep(10)
         }
+        return params
+    }
+
+    async function newYawn(steps = 200, randomize = false) {
+
+        pinkTromboneElement.intensity.value = 1;
+        pinkTromboneElement.tongue.index.value = 23
+        pinkTromboneElement.tongue.diameter.value = 1
+
+        let jump = 132
+
+        let f0 = 120
+        let min_cent = 900
+        let max_cent = 2350
+        let ratio = max_cent / min_cent
+
+        let constriction_indexes_min = getRandomArbitrary(11, 16)
+
+        let constriction_indexes = [...makeArr(constriction_indexes_min, constriction_indexes_min * 2, steps / 2),
+            ...makeArr(constriction_indexes_min * 2, constriction_indexes_min * 2, steps / 2)]
+
+        let constriction_diameters = [...makeArr(1, 0.9, jump),
+            ...makeArr(0.9, 0, steps - jump)]
+
+        let freqs = [...makeArr(f0, 120, jump),
+            ...makeArr(120, 70, steps - jump)]
+
+        let params = []
+
+        for (let i of Array(steps).keys()) {
+            pinkTromboneElement.frequency.value = freqs[i];
+            // setVoiceness(voicenesses[i])
+            myConstriction.index.value = constriction_indexes[i]
+            myConstriction.diameter.value = constriction_diameters[i]
+            params.push({
+                'frequency': freqs[i],
+                'voicenesses': 1,
+                'myConstriction.index': constriction_indexes[i],
+                'myConstriction.diameter': constriction_diameters[i],
+                'intensity': 1,
+                'tongue.index': 18,
+                'tongue.diameter': 2.7,
+                'constriction': {
+                    'index': constriction_indexes[i],
+                    'diameter': constriction_diameters[i]
+                }
+            })
+
+            await sleep(10)
+        }
+
         return params
     }
 
